@@ -1,0 +1,8 @@
+{
+  "colab.serverMounting": true,
+  "notebook.output.scrolling": true,
+  "notebook.output.textLineLimit": 200,
+  "files.exclude": {
+    "**/__pycache__": true
+  }
+}

@@ -7,6 +7,8 @@
 - 실행 환경: VS Code + Google Colab 확장(`google.colab`), Colab T4 GPU
 - 공식 코드는 이 레포에 복사하지 않고, 노트북이 실행 시점에 clone한다.
 
+![DLinear Reproduction](assets/social-preview.png)
+
 ![DLinear 구조](figures/05_dlinear_architecture.png)
 
 ## 폴더 구성

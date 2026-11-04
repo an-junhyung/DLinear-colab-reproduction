@@ -45,14 +45,14 @@ sed -i 's/np\.Inf/np.inf/' utils/tools.py
 
 ## 결과
 
-ETTh1, L=336 → T=96 (seed 2021, Colab T4):
+공식 스크립트 그대로(seed 2021, `--itr 1`, Colab T4) 7개 데이터셋 × horizon 4개 + Electricity T=96, 총 29칸을 돌렸다. MSE 기준:
 
-| | MSE | MAE |
-|---|---|---|
-| 재현 | 0.3841 | 0.4047 |
-| 논문 Table 2 | 0.375 | 0.399 |
+- **논문과 거의 일치 (|차이| ≤ 0.015)**: 29칸 중 19칸. ETTm1·Weather는 전 구간이 일치하고, Electricity 96은 0.140으로 같다.
+- **조금 벗어남 (0.02~0.04)**: 4칸 (ETTh1 192·720, ETTm2 720, Exchange 336)
+- **크게 벗어남 (> 0.05)**: 6칸 (ETTh2 720, Exchange 720, ILI 전 구간). 작은 데이터셋이거나 가장 긴 horizon이다.
+- **미완료**: Electricity 192/336/720, Traffic 전체. test 단계에서 RAM 부족(Standard 12.7GB)으로 강제 종료돼서 High-RAM 런타임으로 다시 돌려야 한다.
 
-전체 데이터셋 결과는 [`results/`](results/) 참고.
+표 전체와 원인 분석: [`results/README.md`](results/README.md) · 원자료: [`results/dlinear_multivariate.csv`](results/dlinear_multivariate.csv)
 
 ### 주의: 시드 편차
 학습률이 매 epoch 절반으로 줄고 patience 3이라 몇 epoch 안에 early stop되므로, 작은 데이터셋(ETTh1 등)은 시드에 따라 결과가 꽤 흔들린다.
@@ -63,7 +63,8 @@ ETTh1, L=336 → T=96 (seed 2021, Colab T4):
 | T=96 | 0.375 | 0.384 | 0.372 | 0.375 | – |
 | T=336 | 0.439 | 0.508 | 0.442 | 0.447 | 0.458 |
 
-한 번 결과로 판단하지 말고 `--itr 3` 평균으로 볼 것.
+공식 코드는 seed 2021로 고정돼 있어서 같은 설정을 다시 돌리면 결과가 똑같이 나온다 (ETTh1 96을 두 번 돌려 둘 다 0.38414). 반면 시드를 바꾸면 위처럼 흔들리므로, 한 번 결과로 판단하지 말고 `--itr 3` 평균으로 볼 것.
+같은 seed 2021이어도 공식 코드(ETTh1 336: 0.447)와 독립 재구현(0.508)의 값이 다른 이유는, 데이터 로더 셔플 등 난수를 쓰는 순서가 달라서다.
 
 ## 그림 다시 만들기
 

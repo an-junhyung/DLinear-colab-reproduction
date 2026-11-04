@@ -17,6 +17,7 @@
 |---|---|
 | `DLinear_reproduce.ipynb` | 재현 노트북 (코드 받기 → 패치 → 데이터 → 실험 → 결과 비교 → 시각화) |
 | `DLinear_extra_experiments.ipynb` | 추가 실험: 시드 편차, 단변량(Table 9), 가중치 그림(Figure 7), `--individual`, 입력 길이(Figure 4) |
+| `results/extra_experiments.md` | 추가 실험 결과와 해석 |
 | `scripts/lab.py` | 추가 실험 노트북이 쓰는 도우미 (공식 스크립트에서 명령을 뽑아 실행·재개·집계) |
 | `.vscode/` | 권장 확장(Colab, Jupyter)과 노트북 설정 |
 | `scripts/dlinear_check.py` | 공식 설정을 그대로 옮긴 독립 DLinear 재구현 (ETTh1, CPU로도 실행 가능) |
@@ -56,6 +57,14 @@ sed -i 's/np\.Inf/np.inf/' utils/tools.py
 - Electricity·Traffic은 Standard RAM(12.7GB)에서 test 단계 메모리 부족으로 강제 종료돼서 High-RAM 런타임(51GB)으로 다시 돌렸다.
 
 표 전체와 원인 분석: [`results/README.md`](results/README.md) · 원자료: [`results/dlinear_multivariate.csv`](results/dlinear_multivariate.csv)
+
+### 추가 실험 (DLinear만): [`results/extra_experiments.md`](results/extra_experiments.md)
+- **시드 편차:** 벗어난 10칸 중 4칸(ETTh1 192·720, ETTm2 720, Exchange 336)은 3번 중 한 번이 논문과 0.012 이내다. 시드로 설명된다.
+- **평가 코드 변경:** 공식 레포가 논문 이후(2023-03-15, `6fe4c28`) test DataLoader의 `drop_last`를 `True`에서 `False`로 바꿨다. 논문 당시 코드로 평가하면 ILI T=36·48·60이 논문 쪽으로 크게 움직인다(차이 +0.29 → +0.13, +0.19 → +0.05, +0.11 → +0.02).
+- **아직 설명 안 됨:** ETTh2 720과 Exchange 720(시드 표준편차 0.12).
+- **나머지 실험:** 단변량(Table 9)은 16칸 중 12칸이 ±0.005 이내다. 가중치 그림에서는 24·168·336시간 주기가 보인다. 입력 길이를 48에서 720으로 늘리면 MSE가 단조롭게 감소한다. `--individual`은 데이터에 따라 득실이 갈린다.
+
+![lookback](figures/16_lookback_window.png)
 
 ### 주의: 시드 편차
 학습률이 매 epoch 절반으로 줄고 patience 3이라 몇 epoch 안에 early stop되므로, 작은 데이터셋(ETTh1 등)은 시드에 따라 결과가 꽤 흔들린다.

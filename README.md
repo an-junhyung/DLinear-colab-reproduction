@@ -16,6 +16,8 @@
 | 경로 | 내용 |
 |---|---|
 | `DLinear_reproduce.ipynb` | 재현 노트북 (코드 받기 → 패치 → 데이터 → 실험 → 결과 비교 → 시각화) |
+| `DLinear_extra_experiments.ipynb` | 추가 실험: 시드 편차, 단변량(Table 9), 가중치 그림(Figure 7), `--individual`, 입력 길이(Figure 4) |
+| `scripts/lab.py` | 추가 실험 노트북이 쓰는 도우미 (공식 스크립트에서 명령을 뽑아 실행·재개·집계) |
 | `.vscode/` | 권장 확장(Colab, Jupyter)과 노트북 설정 |
 | `scripts/dlinear_check.py` | 공식 설정을 그대로 옮긴 독립 DLinear 재구현 (ETTh1, CPU로도 실행 가능) |
 | `scripts/make_figs.py` | 설명용 그림 14장 생성 |

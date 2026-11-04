@@ -27,7 +27,8 @@
 
 ### VS Code (권장)
 1. 레포를 clone해서 폴더를 VS Code로 연다 → "권장 확장 설치" 알림에서 **설치** (Colab + Jupyter).
-2. `DLinear_reproduce.ipynb` 열기 → 오른쪽 위 **Select Kernel → Colab → New Colab Server → T4 → Standard**.
+2. `DLinear_reproduce.ipynb` 열기 → 오른쪽 위 **Select Kernel → Colab → New Colab Server → GPU → T4 → High-RAM**.
+   - Electricity·Traffic은 test 단계에서 메모리를 많이 써서 Standard(12.7GB)로는 강제 종료된다. ETT 등 작은 데이터만 돌릴 거면 Standard도 된다.
    - 처음엔 구글 로그인이 필요하다. 로그인 대기 시간이 1분이라, 브라우저에서 바로 계정 선택 → 허용.
 3. 위에서부터 셀 실행.
 
@@ -45,12 +46,12 @@ sed -i 's/np\.Inf/np.inf/' utils/tools.py
 
 ## 결과
 
-공식 스크립트 그대로(seed 2021, `--itr 1`, Colab T4) 7개 데이터셋 × horizon 4개 + Electricity T=96, 총 29칸을 돌렸다. MSE 기준:
+공식 스크립트 그대로(seed 2021, `--itr 1`, Colab T4) 논문 Table 2의 9개 데이터셋 × horizon 4개, 총 36칸을 모두 돌렸다. MSE 기준:
 
-- **논문과 거의 일치 (|차이| ≤ 0.015)**: 29칸 중 19칸. ETTm1·Weather는 전 구간이 일치하고, Electricity 96은 0.140으로 같다.
+- **논문과 거의 일치 (|차이| ≤ 0.015)**: 36칸 중 26칸. ETTm1·Weather·Electricity·Traffic은 전 구간이 일치한다 (Electricity·Traffic은 |차이| ≤ 0.003).
 - **조금 벗어남 (0.02~0.04)**: 4칸 (ETTh1 192·720, ETTm2 720, Exchange 336)
 - **크게 벗어남 (> 0.05)**: 6칸 (ETTh2 720, Exchange 720, ILI 전 구간). 작은 데이터셋이거나 가장 긴 horizon이다.
-- **미완료**: Electricity 192/336/720, Traffic 전체. test 단계에서 RAM 부족(Standard 12.7GB)으로 강제 종료돼서 High-RAM 런타임으로 다시 돌려야 한다.
+- Electricity·Traffic은 Standard RAM(12.7GB)에서 test 단계 메모리 부족으로 강제 종료돼서 High-RAM 런타임(51GB)으로 다시 돌렸다.
 
 표 전체와 원인 분석: [`results/README.md`](results/README.md) · 원자료: [`results/dlinear_multivariate.csv`](results/dlinear_multivariate.csv)
 

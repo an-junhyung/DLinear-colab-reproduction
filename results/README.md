@@ -1,7 +1,7 @@
 # DLinear 다변량 재현 결과 (Table 2)
 
 - 실행: 공식 코드 [cure-lab/LTSF-Linear](https://github.com/cure-lab/LTSF-Linear) + `np.inf` 패치, `scripts/EXP-LongForecasting/Linear/*.sh` 하이퍼파라미터 그대로, seed 2021, `--itr 1`
-- 환경: VS Code + Colab T4, Standard RAM (12.7GB), 2026-11-04
+- 환경: VS Code + Colab T4, 2026-11-04. ETT·Exchange·ILI·Weather·Electricity 96은 Standard RAM(12.7GB), Electricity 192~720·Traffic은 High-RAM(51GB)
 - 지표는 train 구간으로 정규화한 스케일 기준 MSE / MAE. 차이 = 재현 MSE − 논문 MSE
 
 | 데이터 | T | 재현 MSE | 재현 MAE | 논문 MSE | 논문 MAE | 차이 |
@@ -35,29 +35,29 @@
 | ILI | 48 | 2.298 | 1.079 | 2.130 | 1.024 | +0.168 ⚠️ |
 | ILI | 60 | 2.573 | 1.157 | 2.368 | 1.096 | +0.205 ⚠️ |
 | Electricity | 96 | 0.140 | 0.237 | 0.140 | 0.237 | +0.000 |
-| Electricity | 192 | – | – | 0.153 | 0.249 | 미완료 |
-| Electricity | 336 | – | – | 0.169 | 0.267 | 미완료 |
-| Electricity | 720 | – | – | 0.203 | 0.301 | 미완료 |
-| Traffic | 96 | – | – | 0.410 | 0.282 | 미완료 |
-| Traffic | 192 | – | – | 0.423 | 0.287 | 미완료 |
-| Traffic | 336 | – | – | 0.436 | 0.296 | 미완료 |
-| Traffic | 720 | – | – | 0.466 | 0.315 | 미완료 |
+| Electricity | 192 | 0.154 | 0.250 | 0.153 | 0.249 | +0.001 |
+| Electricity | 336 | 0.169 | 0.268 | 0.169 | 0.267 | +0.000 |
+| Electricity | 720 | 0.204 | 0.300 | 0.203 | 0.301 | +0.001 |
+| Traffic | 96 | 0.413 | 0.287 | 0.410 | 0.282 | +0.003 |
+| Traffic | 192 | 0.424 | 0.290 | 0.423 | 0.287 | +0.001 |
+| Traffic | 336 | 0.438 | 0.299 | 0.436 | 0.296 | +0.002 |
+| Traffic | 720 | 0.466 | 0.316 | 0.466 | 0.315 | +0.000 |
 
 ## 요약
 
-- **거의 일치 (|차이| ≤ 0.015)**: ETTm1 전 구간, Weather 전 구간(일부는 논문보다 약간 좋음), ETTh1 96·336, ETTh2 96·192·336, ETTm2 96·192·336, Exchange 96·192, Electricity 96.
-- **조금 벗어남 (0.02~0.04)**: ETTh1 192·720, ETTm2 720, Exchange 336.
-- **크게 벗어남 (⚠️, > 0.05)**: ETTh2 720 (+0.128), Exchange 720 (+0.255), ILI 전 구간 (+0.065 ~ +0.272). 모두 데이터가 작거나(ILI 966행, Exchange 7,588행) 가장 긴 horizon이라 early stopping 시점·시드에 민감한 칸이다. `--itr 3` 평균으로 다시 확인할 필요가 있다.
+- **거의 일치 (|차이| ≤ 0.015)**: ETTm1 전 구간, Weather 전 구간(일부는 논문보다 약간 좋음), ETTh1 96·336, ETTh2 96·192·336, ETTm2 96·192·336, Exchange 96·192, **Electricity·Traffic 전 구간**(모두 |차이| ≤ 0.003). 36칸 중 26칸.
+- **조금 벗어남 (0.02~0.04)**: 4칸. ETTh1 192·720, ETTm2 720, Exchange 336.
+- **크게 벗어남 (⚠️, > 0.05)**: 6칸. ETTh2 720 (+0.128), Exchange 720 (+0.255), ILI 전 구간 (+0.065 ~ +0.272). 모두 데이터가 작거나(ILI 966행, Exchange 7,588행) 가장 긴 horizon이라 early stopping 시점·시드에 민감한 칸이다. `--itr 3` 평균으로 다시 확인할 필요가 있다.
 
-## 미완료: Electricity 192/336/720, Traffic 전체
+## Electricity·Traffic은 High-RAM 필요
 
-학습은 끝났지만 **test 단계에서 RAM 부족으로 프로세스가 강제 종료**됐다 (exit status 137).
+처음 Standard RAM(12.7GB)으로 돌렸을 때 Electricity 192부터 학습은 끝났지만 **test 단계에서 RAM 부족으로 프로세스가 강제 종료**됐다 (exit status 137).
 `exp/exp_main.py`의 `test()`가 test 셋 전체의 예측·정답·입력을 리스트에 모은 뒤 `np.concatenate`로 한 번 더 복사하기 때문에,
 Electricity(321채널) T=720이면 예측·정답만 각각 약 4GB(4541×720×321×4바이트)가 되어 Standard 런타임 12.7GB를 넘는다.
-**High-RAM 런타임**으로 Electricity·Traffic만 다시 돌리면 해결된다.
+**High-RAM 런타임**(51GB)에서 Electricity·Traffic만 다시 돌려 위 표의 값을 얻었다 (같은 seed 2021, Electricity 96은 두 번 모두 0.1401로 동일).
 
 ## 실행 시간 (Colab T4, 스크립트당 horizon 4개)
 
-| ETTh1 | ETTh2 | ETTm1 | ETTm2 | Exchange | ILI | Weather |
-|---|---|---|---|---|---|---|
-| 111s | 146s | 1158s | 385s | 113s | 35s | 623s |
+| ETTh1 | ETTh2 | ETTm1 | ETTm2 | Exchange | ILI | Weather | Electricity | Traffic |
+|---|---|---|---|---|---|---|---|---|
+| 111s | 146s | 1158s | 385s | 113s | 35s | 623s | 1514s | 2574s |

@@ -197,7 +197,7 @@ ETTh1과 ETTm1에서는 논문값이 수렴한 해와 거의 같다. ETTh2, ETTm
 
 - ETTh2는 DLinear만 학습률 0.05로 논문값이 나오고, NLinear와 Linear는 0.005여야 한다. ETTh2 스크립트는 2022-08-15 이후 바뀐 적이 없으므로, 논문 표를 만들 때 모델마다 다른 학습률을 썼고 공개 스크립트에는 DLinear 것만 남은 것으로 보인다.
 - ETTm2 720은 2022-08-22에 스크립트가 0.1에서 0.01로 고쳐졌다(`726695f`). 고친 값으로 돌리면 세 모델 모두 논문과 맞는다.
-- 이로써 NLinear 20칸 중 19칸, Linear 20칸 모두가 설명된다. 남은 한 칸(NLinear 환율 720)은 `open_problems.md` 4번이다.
+- 이로써 NLinear 20칸 중 17칸이 MSE 소수 셋째 자리까지 일치하고 2칸(ETTh2 720 0.396 vs 0.394, ETTm2 336 0.2748 vs 0.274)이 0.002 이내로 남는다. Linear는 20칸 모두 MSE가 일치한다(MAE는 ETTh1 336, ETTh2 720 두 칸이 반올림 경계에서 0.001 차이). 남은 한 칸(NLinear 환율 720)은 `open_problems.md` 4번이다.
 
 원자료: `nlinear_linear_lr_sweep_aug2022.csv`
 

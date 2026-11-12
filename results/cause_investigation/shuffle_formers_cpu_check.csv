@@ -1,0 +1,11 @@
+model,pred_len,seed,mode,mse,mae
+Informer,96,2021,none,0.957833,0.779156
+Informer,96,2021,shuf,0.954850,0.777735
+Informer,96,2021,half,0.954940,0.777592
+Informer,96,2021,shuf_all,0.954606,0.779526
+Informer,96,2021,half_all,0.961086,0.784425
+FEDformer,96,2021,none,0.148190,0.280013
+FEDformer,96,2021,shuf,0.147149,0.279604
+FEDformer,96,2021,half,0.148936,0.280847
+FEDformer,96,2021,shuf_all,0.147149,0.279604
+FEDformer,96,2021,half_all,0.148936,0.280847

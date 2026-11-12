@@ -145,3 +145,28 @@ Electricity, L=96, T=720, 변수 321개. 측정 코드는 [`scripts/table8_effic
 - "미해결"이던 다변량 · 단변량 ETTh2 720도 같은 이유로 설명된다.
 - 남은 칸(Exchange, ILI, Weather)은 Google Drive 데이터가 필요해 [`DLinear_followup_experiments.ipynb`](../DLinear_followup_experiments.ipynb)로 Colab에서 확인한다.
 - 2022-06 README 표의 ILI 값(2.108 / 2.332 / 2.088 / 2.299)은 논문 Table 2와 달라서, 논문의 ILI는 나중에 다시 돌린 값으로 보인다.
+
+## 9. 논문 당시 코드로 나머지 데이터셋 (Colab T4, 2026-11-12)
+
+[`DLinear_followup_experiments.ipynb`](../DLinear_followup_experiments.ipynb)로 실행했다. 원자료는 `paper_era_colab.csv`(화면에서 옮겨 적음). Electricity·Traffic은 MSE만 진행 로그에서 읽었다.
+
+| 데이터 | 결과 |
+|---|---|
+| Exchange | 4칸 모두 논문과 같음. 720: 0.6432 / 0.6011 (논문 0.643 / 0.601, 지금 코드 0.898) |
+| Weather | 4칸 모두 같음 |
+| ILI | 2022-06 스크립트(lr 0.05)로는 2.108 / 2.332 / 2.088 / 2.299로 **2022-06 README 표**와 같다. **lr 0.01**(2022-08 스크립트)로는 2.2149 / 1.9628 / 2.1295 / 2.3684로 **논문 Table 2**와 같다 |
+| Electricity | 4칸 모두 같음 (0.1398 / 0.1528 / 0.1686 / 0.2034) |
+| Traffic | 96: 0.4112 (논문 0.410). 나머지는 실행 중 |
+
+**결론:** 논문 Table 2의 DLinear 다변량 값은 2022-06 코드(가중치 $1/L$ 초기화, 쓰지 않는 `Linear_Decoder` 층, test `drop_last=True`)에 데이터셋별 스크립트 설정을 넣어 seed 2021로 1회 돌린 값이다. ETTm2 720과 ILI는 2022-08에 고쳐진 학습률(0.01)을 썼다. 첫 재현에서 차이 난 10칸은 모두 이 코드·스크립트 버전 차이로 설명된다.
+
+### Table 8 (Colab Tesla T4, Electricity, L=96, T=720)
+
+| 항목 | 논문 (Titan XP) | 재현 (T4) |
+|---|---|---|
+| MACs | 0.04G | 0.045G |
+| 파라미터 | 139.7K | 139,680 |
+| 추론 시간 | 0.4ms | batch 1: 0.317ms · batch 16: 0.985ms · batch 32: 1.953ms (각 5회 평균) |
+| 메모리 | 687MiB | 텐서 peak: batch 1 11.7MiB · 16 57.1MiB · 32 104.6MiB / nvidia-smi 전체 263MiB |
+
+메모리는 논문이 측정 방식을 밝히지 않아 직접 비교하기 어렵다. 텐서 자체는 수십 MiB이고, 나머지는 CUDA context 등 고정 비용이다.

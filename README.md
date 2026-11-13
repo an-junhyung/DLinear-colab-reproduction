@@ -50,6 +50,8 @@ sed -i 's/np\.Inf/np.inf/' utils/tools.py
 
 ## 결과
 
+> **최신 결론 (2026-11-13).** 아래 "결과"와 "추가 실험"은 지금 공식 코드로 처음 돌렸을 때의 기록이다. 차이의 원인은 그 뒤에 따로 추적했다. 논문 숫자는 2022-06 커밋(`04ffd8d`)의 코드에서 나왔고, 그 코드와 당시 학습률, Traffic의 긴 학습(최대 30 epoch)을 적용하면 다변량 DLinear **36칸 중 35칸이 소수 셋째 자리까지 일치**한다. 남은 칸은 ETTm2 96(MSE 0.0007 차이) 하나다. 아래의 "아직 설명 안 됨"(ETTh2 720, Exchange 720)도 학습 초반에 멈춘 값이라 시드에 흔들린다는 것으로 설명됐다. 확인된 원인: [`results/cause_investigation/confirmed_causes.md`](results/cause_investigation/confirmed_causes.md) · 남은 문제: [`results/cause_investigation/open_problems.md`](results/cause_investigation/open_problems.md)
+
 공식 스크립트 그대로(seed 2021, `--itr 1`, Colab T4) 논문 Table 2의 9개 데이터셋 × horizon 4개, 총 36칸을 모두 돌렸다. MSE 기준:
 
 - **논문과 거의 일치 (|차이| ≤ 0.015)**: 36칸 중 26칸. ETTm1·Weather·Electricity·Traffic은 전 구간이 일치한다 (Electricity·Traffic은 |차이| ≤ 0.003).

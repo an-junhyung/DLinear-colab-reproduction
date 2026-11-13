@@ -261,3 +261,22 @@ NLinear와 Linear는 2022-08 코드에서 처음 들어왔다. 그 코드와 스
 - Transformer 쪽(FEDformer, Autoformer, Informer)은 돌리지 않았다.
 
 원자료: `shuffle_linear_exchange.csv`
+
+## 덧붙임: 순서 섞기 실험의 Transformer 쪽 (2026-11-13, Colab T4)
+
+논문 Table 5의 Transformer 열(FEDformer, Autoformer, Informer)도 직접 돌렸다. 공식 저장소 `Formers_Long.sh`의 환율 설정(입력 96, label_len 48, 1 epoch, 배치 32, 학습률 1e-4)으로 원래 순서에서 학습한 뒤 테스트 입력만 바꿨다. 예측 길이 4개 × 시드 3개(2021~2023). 코드는 `scripts/shuffle_formers.py`, 노트북 `DLinear_shuffle_transformers.ipynb`, 원자료 `shuffle_formers_colab.csv`.
+
+**오차 증가율 (%), 예측 길이 4개 · 시드 3개 평균**
+
+| 모델 | 전체 섞기 | 앞뒤 절반 바꾸기 | 논문 (섞기 / 바꾸기) |
+|---|---|---|---|
+| Linear (입력 96, 10절) | +27.82 | +44.97 | +27.26 / +46.81 |
+| FEDformer | −0.29 | +0.11 | −0.09 / +0.20 |
+| Autoformer | +2.00 | +3.37 | +0.09 / +1.12 |
+| Informer | −0.16 | −0.28 | −0.12 / −0.18 |
+
+- FEDformer와 Informer는 논문과 같다. Autoformer는 논문보다 조금 크다.
+- 예측 길이별로 보면 Autoformer는 96에서 +13.7% / +14.4%, 192 이상에서는 0 근처나 음수다. 같은 96에서 Linear는 +65.9% / +106.7%다. 즉 Autoformer도 짧은 예측에서는 순서를 일부 쓰지만 Linear보다 훨씬 덜 쓴다.
+- Informer는 섞어도 변하지 않지만 원래 오차가 0.95~2.91로, 같은 조건의 Linear(0.085~0.786)보다 3~12배 크다. 순서를 무시한다기보다 입력을 잘 쓰지 못한다고 보는 편이 맞다.
+- 디코더 시작 구간(입력의 마지막 48개)까지 섞은 경우(`shuf_all`, `half_all`): FEDformer와 Autoformer는 결과가 완전히 같다. 두 모델은 디코더 입력을 인코더 입력의 분해에서 다시 만들기 때문이다. Informer는 −0.20% / −0.09%로 거의 같다.
+- 섞지 않은 원래 MSE(시드 3개 평균)는 FEDformer 0.151 / 0.269 / 0.428 / 1.145, Autoformer 0.152 / 0.295 / 0.455 / 1.101, Informer 1.052 / 1.228 / 1.801 / 2.621이다.

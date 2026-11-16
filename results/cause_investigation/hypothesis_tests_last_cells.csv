@@ -1,0 +1,17 @@
+cell,setting,mse,mae
+NLinear_Exchange_720,"2022-12 code, --individual, seed 2022",0.9952,0.7316
+NLinear_Exchange_720,"2022-12 code, --individual, seed 2021",1.0067,0.7363
+NLinear_Exchange_720,"2022-12 code, --individual, seed 2023",0.9766,0.7278
+NLinear_Exchange_720,"2022-12 code, --individual, lr 0.005",1.0746,0.7590
+NLinear_Exchange_720,"2022-12 code, --individual, lr 0.05",1.5681,0.9131
+NLinear_Exchange_720,"2022-12 code",0.9430,0.7283
+NLinear_Exchange_720,"current code (0c11366)",0.9254,0.7216
+NLinear_Exchange_720,"2022-08 code, subtract window mean, lr 0.0005",0.9736,0.7416
+NLinear_Exchange_720,"2022-08 code, subtract window mean, lr 0.005",1.0075,0.7545
+NLinear_Exchange_720,"current code, --individual",0.9850,0.7269
+DLinear_ETTm2_96,"2022-06 code, --individual",0.1949,0.2880
+DLinear_ETTm2_96,"2022-06 code, seed 2022",0.1666,0.2602
+DLinear_ETTm2_96,"2022-06 code, seed 2023",0.1664,0.2596
+DLinear_ETTm2_96,"2022-06 code, seed 2024",0.1708,0.2677
+DLinear_ETTm2_96,"2022-06 code, seed 2025",0.1663,0.2594
+DLinear_ETTm2_96,"2022-06 code, seed 2026",0.1678,0.2607

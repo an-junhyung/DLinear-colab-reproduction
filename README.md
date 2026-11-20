@@ -50,6 +50,8 @@ sed -i 's/np\.Inf/np.inf/' utils/tools.py
 
 ## 결과
 
+> **2026-11-21 추가.** 재현한 92칸 중 원인을 못 찾은 칸은 3개다(다변량 DLinear ETTm2 96, NLinear ETTm2 336, NLinear 환율 720). 단변량 ETTh2 96·192와 ETTm2 336·720은 학습률로 확정했다. 논문의 분석 실험(Table 3·4·6·7·8, Figure 4)을 직접 돌리는 노트북은 `DLinear_paper_experiments.ipynb`, 성능 개선 가설은 [`docs/improvement_hypotheses.md`](docs/improvement_hypotheses.md)에 있다. 마지막 값 반복 기준선은 환율 네 칸 모두 논문과 일치한다(`results/repeat_baseline.csv`).
+>
 > **최신 결론 (2026-11-13).** 아래 "결과"와 "추가 실험"은 지금 공식 코드로 처음 돌렸을 때의 기록이다. 차이의 원인은 그 뒤에 따로 추적했다. 논문 숫자는 2022-06 커밋(`04ffd8d`)의 코드에서 나왔고, 그 코드와 당시 학습률, Traffic의 긴 학습(최대 30 epoch)을 적용하면 다변량 DLinear **36칸 중 35칸이 소수 셋째 자리까지 일치**한다. 남은 칸은 ETTm2 96(MSE 0.0007 차이) 하나다. 아래의 "아직 설명 안 됨"(ETTh2 720, Exchange 720)도 학습 초반에 멈춘 값이라 시드에 흔들린다는 것으로 설명됐다. 확인된 원인: [`results/cause_investigation/confirmed_causes.md`](results/cause_investigation/confirmed_causes.md) · 남은 문제: [`results/cause_investigation/open_problems.md`](results/cause_investigation/open_problems.md)
 
 공식 스크립트 그대로(seed 2021, `--itr 1`, Colab T4) 논문 Table 2의 9개 데이터셋 × horizon 4개, 총 36칸을 모두 돌렸다. MSE 기준:

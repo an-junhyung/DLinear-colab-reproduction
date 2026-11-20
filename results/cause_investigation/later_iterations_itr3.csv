@@ -1,0 +1,7 @@
+cell,code,iteration,mse,mae,paper_mse,paper_mae
+DLinear ETTm2 96 (M),2022-06,1,0.1677,0.2598,0.167,0.260
+DLinear ETTm2 96 (M),2022-06,2,0.1659,0.2576,0.167,0.260
+DLinear ETTm2 96 (M),2022-06,3,0.1699,0.2648,0.167,0.260
+NLinear Exchange 720 (M),2022-08,1,0.9430,0.7283,1.033,0.780
+NLinear Exchange 720 (M),2022-08,2,0.9222,0.7186,1.033,0.780
+NLinear Exchange 720 (M),2022-08,3,0.9601,0.7348,1.033,0.780

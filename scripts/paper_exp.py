@@ -63,6 +63,9 @@ linear = MODEL in ('Linear', 'NLinear', 'DLinear')
 EPOCHS = int(kv.get('epochs', 10 if linear else off_ep))
 
 fed = MODEL == 'FEDformer'
+# embed_type labels used here: 0 model default, 1 all, 2 without positional, 3 without temporal, 4 without both.
+# The FEDformer folder numbers them differently (0 without positional, 1 all, 2 without both, 3 without temporal).
+EMB_ARG = {0: 0, 1: 1, 2: 0, 3: 3, 4: 2}[EMB] if fed else EMB
 root = os.path.join(repo, 'FEDformer') if fed else repo
 os.chdir(root)
 sys.path.insert(0, root)
@@ -230,7 +233,7 @@ argv = ['--is_training', '1', '--root_path', data_dir, '--data_path', path, '--d
         '--features', 'M', '--seq_len', str(L), '--label_len', str(LABEL), '--pred_len', str(P),
         '--enc_in', str(C), '--dec_in', str(C), '--c_out', str(C), '--des', 'Exp', '--itr', '1',
         '--num_workers', '0', '--train_epochs', str(EPOCHS), '--model', MODEL,
-        '--e_layers', '2', '--d_layers', '1', '--factor', '3', '--embed_type', str(EMB)]
+        '--e_layers', '2', '--d_layers', '1', '--factor', '3', '--embed_type', str(EMB_ARG)]
 if linear:
     argv += ['--learning_rate', kv.get('lr', '0.005'), '--batch_size', kv.get('bs', '32')]
 argv += ['--task_id', tag] if fed else ['--model_id', tag]

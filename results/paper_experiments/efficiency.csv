@@ -1,0 +1,6 @@
+model,params,ms_per_forward,peak_MiB
+DLinear,139680,0.69,13
+Transformer,11665729,8.37,137
+Informer,12453697,12.48,119
+Autoformer,12143937,23.39,119
+FEDformer,17911121,47.71,151

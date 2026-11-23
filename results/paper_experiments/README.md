@@ -10,7 +10,7 @@
 | 논문 | 논문의 결론 | 직접 돌린 결과 | 구현 |
 |---|---|---|---|
 | Table 2 Repeat | 환율에서 마지막 값 반복이 FEDformer보다 낫다 | 재현됨. 반복 4칸은 MSE·MAE가 논문과 일치 | 직접 계산 |
-| Table 2 FEDformer | DLinear가 FEDformer보다 낫다 | 재현됨. FEDformer 9칸이 논문과 0.02 이내, 여섯 데이터 모두 DLinear가 낮다 | 공식 |
+| Table 2 FEDformer | DLinear가 FEDformer보다 낫다 | 재현됨. FEDformer 9칸 중 8칸이 논문과 0.02 이내(환율 720만 0.041 차이), 여섯 데이터 모두 DLinear가 낮다 | 공식 |
 | Table 3 | 먼 입력을 줘도 성능이 거의 같다 | FEDformer는 숫자까지 재현. Autoformer는 숫자가 다르지만 결론은 같은 방향 | 내 구현 |
 | Table 4 | 단순하게 만들수록 좋아진다 | Linear 열 8칸 일치. ETTh1은 순서까지 재현. 환율은 중간 단계가 논문과 다르다 | 가운데 두 모델은 내 구현 |
 | Table 6 | FEDformer·Autoformer는 위치 정보를 빼도 그대로, Informer는 크게 나빠진다 | 재현됨. FEDformer는 네 조건의 평균이 논문과 0.003 이내 | 공식 |

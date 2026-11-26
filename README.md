@@ -1,99 +1,91 @@
-# DLinear 재현 (VS Code + Google Colab)
+# DLinear · NLinear Colab 재현
 
-논문 **Are Transformers Effective for Time Series Forecasting?** (Zeng et al., AAAI 2023)의 DLinear 결과(Table 2, 다변량)를
-공식 코드 [cure-lab/LTSF-Linear](https://github.com/cure-lab/LTSF-Linear)로 재현한 기록.
+논문 **Are Transformers Effective for Time Series Forecasting?** (Zeng, Chen, Zhang, Xu, AAAI 2023)의 선형 모델 결과를 공식 코드 [cure-lab/LTSF-Linear](https://github.com/cure-lab/LTSF-Linear)로 Google Colab에서 재현하고, 논문값과 다른 칸의 원인을 추적한 기록입니다.
 
 - 논문: <https://arxiv.org/abs/2205.13504>
-- 실행 환경: VS Code + Google Colab 확장(`google.colab`), Colab T4 GPU
-- 공식 코드는 이 레포에 복사하지 않고, 노트북이 실행 시점에 clone한다.
+- 공식 코드는 이 저장소에 복사하지 않았습니다. 노트북이 실행할 때 내려받고, 필요한 커밋(`04ffd8d`, `7f7a25b`)을 따로 꺼내 씁니다.
+- 발표 자료와 대본(한국어, 영어)은 [`docs/`](docs/)에 있습니다.
 
 ![DLinear Reproduction](assets/social-preview.png)
 
-![DLinear 구조](figures/05_dlinear_architecture.png)
+[English summary](#english-summary)
+
+## 결론
+
+**1. 재현한 92칸 중 89칸은 논문과 맞거나, 다른 이유를 확인했습니다.**
+
+| 표 | 칸 수 | 결과 |
+|---|---|---|
+| 다변량 DLinear (Table 2) | 36 | 35칸이 소수 셋째 자리까지 일치. ETTm2 96만 MSE 0.0007 차이 |
+| 단변량 DLinear (Table 9) | 16 | 모두 설명됨. 11칸은 스크립트 그대로, 4칸은 학습률, 1칸은 논문 표의 오타 |
+| 다변량 NLinear (Table 2) | 20 | 18칸 일치. ETTm2 336(0.0008 차이), 환율 720(0.943 대 1.033)은 원인 모름 |
+| 다변량 Linear (Table 2) | 20 | 20칸 모두 일치 |
+
+**2. 차이의 주된 원인은 공식 코드가 논문 이후에 바뀐 것입니다.** 논문 숫자는 2022년 6월 코드(`04ffd8d`)에서 나왔습니다. 그 뒤 가중치 초기화가 빠지고, 예측에 쓰이지 않는 층이 지워지고(그 층이 난수를 소비해서 데이터 섞는 순서가 바뀜), 스크립트 학습률과 테스트 채점 방식이 바뀌었습니다. 자세한 내용: [`confirmed_causes.md`](results/cause_investigation/confirmed_causes.md), 남은 세 칸: [`open_problems.md`](results/cause_investigation/open_problems.md)
+
+**3. 흔들리는 칸이 있습니다.** ETTh2 720, 환율 720 같은 칸은 조기 종료가 학습 초반의 모델을 고른 값이라 시드에 크게 흔들립니다(시드 20개에서 환율 720은 0.49~1.05).
+
+**4. 논문의 분석 실험도 직접 돌렸습니다** (Colab T4, 269회 학습). 결과: [`results/paper_experiments/`](results/paper_experiments/)
+
+| 논문 | 결론 | 재현 |
+|---|---|---|
+| Table 2 | DLinear가 FEDformer보다 낫다. 환율은 마지막 값 반복이 FEDformer보다 낫다 | 재현됨 |
+| Table 5 | (환율) Transformer는 입력 순서를 섞어도 그대로다 | 재현됨. ETTh1에서는 FEDformer·Autoformer도 나빠진다(논문에도 있음) |
+| Table 6 | 위치 정보를 빼도 FEDformer·Autoformer는 그대로다 | 재현됨 |
+| Table 8 | DLinear가 훨씬 가볍고 빠르다 | 재현됨 |
+| Table 3 | 먼 입력을 줘도 성능이 거의 같다 | FEDformer는 숫자까지, Autoformer는 방향만 |
+| Figure 4 | 선형 모델만 길게 볼수록 좋아진다 | 재현됨 (전력, 교통, 7개 모델) |
+| Table 4 | Informer를 단순하게 만들수록 좋아진다 | 일부. Linear 8칸은 일치, 환율의 중간 단계는 다름 |
+| Table 7 | 학습 데이터를 줄여도 나빠지지 않는다 | 일부. FEDformer만 같고 Autoformer는 나빠짐 |
+
+Table 3, Table 7과 Table 4의 가운데 두 모델은 저자 코드가 공개되지 않아 논문 설명대로 구현했습니다.
+
+**5. 개선 가설을 실험하는 중입니다.** 가설: [`docs/improvement_hypotheses.md`](docs/improvement_hypotheses.md), 1단계 결과(ETT 4종, 환율): [`results/hypotheses/stage1.md`](results/hypotheses/stage1.md). 마지막 값을 뺀 뒤 학습 대신 수식(릿지 회귀)으로 푼 해가 20칸 중 12칸에서 가장 낮았습니다. DLinear에 마지막 값 빼기를 더하면 NLinear와 같은 수준이 됩니다. 독감, 날씨, 전력, 교통은 진행 중입니다.
 
 ## 폴더 구성
 
 | 경로 | 내용 |
 |---|---|
-| `DLinear_reproduce.ipynb` | 재현 노트북 (코드 받기 → 패치 → 데이터 → 실험 → 결과 비교 → 시각화) |
-| `DLinear_extra_experiments.ipynb` | 추가 실험: 시드 편차, 단변량(Table 9), 가중치 그림(Figure 7), `--individual`, 입력 길이(Figure 4) |
-| `DLinear_followup_experiments.ipynb` | 후속 실험: Table 8 추론 시간·메모리, 미해결 칸을 2022-05 스크립트·코드로 재실행 |
-| `results/extra_experiments.md` | 추가 실험 결과와 해석 |
-| `scripts/lab.py` | 추가 실험 노트북이 쓰는 도우미 (공식 스크립트에서 명령을 뽑아 실행·재개·집계) |
-| `.vscode/` | 권장 확장(Colab, Jupyter)과 노트북 설정 |
-| `scripts/dlinear_check.py` | 공식 설정을 그대로 옮긴 독립 DLinear 재구현 (ETTh1, CPU로도 실행 가능) |
-| `scripts/make_figs.py` | 설명용 그림 14장 생성 |
-| `scripts/weights_fig.py` | 학습된 DLinear 가중치 시각화 |
-| `figures/` | 생성된 그림 |
-| `results/` | 재현 결과 (`result.txt`, 비교표) |
+| `DLinear_reproduce.ipynb` | 첫 재현. 지금 공식 코드로 Table 2의 DLinear 36칸 |
+| `DLinear_extra_experiments.ipynb` | 추가 실험: 시드 편차, 단변량(Table 9), 가중치 그림, `--individual`, 입력 길이 |
+| `DLinear_followup_experiments.ipynb` | 논문 당시 코드(`04ffd8d`)로 재실행, Table 8 시간·메모리 |
+| `DLinear_traffic_ep30.ipynb` | 교통: 최대 30 epoch로 학습하면 논문값이 나오는지 |
+| `DLinear_shuffle_transformers.ipynb` | Table 5 순서 섞기, Transformer 쪽 |
+| `DLinear_last_cells_gpu.ipynb` | 원인을 못 찾은 칸을 GPU에서 다시 돌리기 |
+| `DLinear_paper_experiments.ipynb` | 논문 분석 실험(Table 2·3·4·6·7·8, Figure 4) |
+| `DLinear_hypotheses.ipynb` | 개선 가설 실험 (독감, 날씨, 전력, 교통) |
+| `scripts/` | 노트북이 쓰는 실행 스크립트와 그림 스크립트 |
+| `results/` | 결과 CSV와 정리 문서. `cause_investigation/`(원인 추적), `paper_experiments/`, `hypotheses/`, `synthetic/`(직접 만든 데이터 실험) |
+| `docs/` | 발표 자료와 대본 PDF(한국어, 영어), 개선 가설 |
+| `figures/` | 설명용 그림 |
 
 ## 실행 방법
 
-### VS Code (권장)
-1. 레포를 clone해서 폴더를 VS Code로 연다 → "권장 확장 설치" 알림에서 **설치** (Colab + Jupyter).
-2. `DLinear_reproduce.ipynb` 열기 → 오른쪽 위 **Select Kernel → Colab → New Colab Server → GPU → T4 → High-RAM**.
-   - Electricity·Traffic은 test 단계에서 메모리를 많이 써서 Standard(12.7GB)로는 강제 종료된다. ETT 등 작은 데이터만 돌릴 거면 Standard도 된다.
-   - 처음엔 구글 로그인이 필요하다. 로그인 대기 시간이 1분이라, 브라우저에서 바로 계정 선택 → 허용.
-3. 위에서부터 셀 실행.
+1. 노트북을 Colab에서 엽니다(브라우저 Colab, 또는 VS Code의 Colab 확장). 런타임은 GPU(T4)입니다.
+2. 위에서부터 실행합니다. 공식 코드와 데이터(저자 제공 Google Drive)는 노트북이 내려받습니다.
+3. 전력과 교통은 메모리를 많이 써서 High-RAM 런타임이 필요합니다.
 
-### 브라우저 Colab
-노트북을 Colab에 업로드 → 런타임 유형 GPU → 위에서부터 실행.
+공식 `requirements.txt`(PyTorch 1.9, Python 3.6)는 설치하지 않고 Colab 기본 환경을 씁니다. NumPy 2에서는 `np.Inf`가 없어져서 한 줄만 고칩니다(`sed -i 's/np\.Inf/np.inf/' utils/tools.py`). 그 밖의 공식 코드는 고치지 않습니다.
 
-## 최신 환경에서 필요한 패치
+## 처음 재현했을 때의 기록
 
-공식 `requirements.txt`는 `torch==1.9` / Python 3.6 기준이라 **설치하지 않는다** (Colab 기본 환경 사용).
-NumPy 2.x에서는 `np.Inf`가 삭제돼 학습 시작 직후 에러가 나므로 한 줄 고친다.
-
-```bash
-sed -i 's/np\.Inf/np.inf/' utils/tools.py
-```
-
-## 결과
-
-> **2026-11-21 추가.** 재현한 92칸 중 원인을 못 찾은 칸은 3개다(다변량 DLinear ETTm2 96, NLinear ETTm2 336, NLinear 환율 720). 단변량 ETTh2 96·192와 ETTm2 336·720은 학습률로 확정했다. 논문의 분석 실험(Table 3·4·6·7·8, Figure 4)을 직접 돌리는 노트북은 `DLinear_paper_experiments.ipynb`, 성능 개선 가설은 [`docs/improvement_hypotheses.md`](docs/improvement_hypotheses.md)에 있다. 마지막 값 반복 기준선은 환율 네 칸 모두 논문과 일치한다(`results/repeat_baseline.csv`).
->
-> **최신 결론 (2026-11-13).** 아래 "결과"와 "추가 실험"은 지금 공식 코드로 처음 돌렸을 때의 기록이다. 차이의 원인은 그 뒤에 따로 추적했다. 논문 숫자는 2022-06 커밋(`04ffd8d`)의 코드에서 나왔고, 그 코드와 당시 학습률, Traffic의 긴 학습(최대 30 epoch)을 적용하면 다변량 DLinear **36칸 중 35칸이 소수 셋째 자리까지 일치**한다. 남은 칸은 ETTm2 96(MSE 0.0007 차이) 하나다. 아래의 "아직 설명 안 됨"(ETTh2 720, Exchange 720)도 학습 초반에 멈춘 값이라 시드에 흔들린다는 것으로 설명됐다. 확인된 원인: [`results/cause_investigation/confirmed_causes.md`](results/cause_investigation/confirmed_causes.md) · 남은 문제: [`results/cause_investigation/open_problems.md`](results/cause_investigation/open_problems.md)
-
-공식 스크립트 그대로(seed 2021, `--itr 1`, Colab T4) 논문 Table 2의 9개 데이터셋 × horizon 4개, 총 36칸을 모두 돌렸다. MSE 기준:
-
-- **논문과 거의 일치 (|차이| ≤ 0.015)**: 36칸 중 26칸. ETTm1·Weather·Electricity·Traffic은 전 구간이 일치한다 (Electricity·Traffic은 |차이| ≤ 0.003).
-- **조금 벗어남 (0.02~0.04)**: 4칸 (ETTh1 192·720, ETTm2 720, Exchange 336)
-- **크게 벗어남 (> 0.05)**: 6칸 (ETTh2 720, Exchange 720, ILI 전 구간). 작은 데이터셋이거나 가장 긴 horizon이다.
-- Electricity·Traffic은 Standard RAM(12.7GB)에서 test 단계 메모리 부족으로 강제 종료돼서 High-RAM 런타임(51GB)으로 다시 돌렸다.
-
-표 전체와 원인 분석: [`results/README.md`](results/README.md) · 원자료: [`results/dlinear_multivariate.csv`](results/dlinear_multivariate.csv)
-
-### 추가 실험 (DLinear만): [`results/extra_experiments.md`](results/extra_experiments.md)
-- **시드 편차:** 벗어난 10칸 중 4칸(ETTh1 192·720, ETTm2 720, Exchange 336)은 3번 중 한 번이 논문과 0.012 이내다. 시드로 설명된다.
-- **평가 코드 변경:** 공식 레포가 논문 이후(2023-03-15, `6fe4c28`) test DataLoader의 `drop_last`를 `True`에서 `False`로 바꿨다. 논문 당시 코드로 평가하면 ILI T=36·48·60이 논문 쪽으로 크게 움직인다(차이 +0.29 → +0.13, +0.19 → +0.05, +0.11 → +0.02).
-- **아직 설명 안 됨:** ETTh2 720과 Exchange 720(시드 표준편차 0.12).
-- **나머지 실험:** 단변량(Table 9)은 16칸 중 12칸이 ±0.005 이내다. 가중치 그림에서는 24·168·336시간 주기가 보인다. 입력 길이를 48에서 720으로 늘리면 MSE가 단조롭게 감소한다. `--individual`은 데이터에 따라 득실이 갈린다.
-
-![lookback](figures/16_lookback_window.png)
-
-### 주의: 시드 편차
-학습률이 매 epoch 절반으로 줄고 patience 3이라 몇 epoch 안에 early stop되므로, 작은 데이터셋(ETTh1 등)은 시드에 따라 결과가 꽤 흔들린다.
-독립 재구현(`scripts/dlinear_check.py`)으로 확인한 ETTh1 MSE:
-
-| horizon | 논문 | seed 2021 | seed 1 | seed 2 | seed 3 |
-|---|---|---|---|---|---|
-| T=96 | 0.375 | 0.384 | 0.372 | 0.375 | – |
-| T=336 | 0.439 | 0.508 | 0.442 | 0.447 | 0.458 |
-
-공식 코드는 seed 2021로 고정돼 있어서 같은 설정을 다시 돌리면 결과가 똑같이 나온다 (ETTh1 96을 두 번 돌려 둘 다 0.38414). 반면 시드를 바꾸면 위처럼 흔들리므로, 한 번 결과로 판단하지 말고 `--itr 3` 평균으로 볼 것.
-같은 seed 2021이어도 공식 코드(ETTh1 336: 0.447)와 독립 재구현(0.508)의 값이 다른 이유는, 데이터 로더 셔플 등 난수를 쓰는 순서가 달라서다.
-
-## 그림 다시 만들기
-
-```bash
-pip install numpy pandas matplotlib torch
-python scripts/make_figs.py path/to/ETTh1.csv figures
-python scripts/dlinear_check.py path/to/ETTh1.csv 96 1 viz   # w_seasonal.npy, w_trend.npy 저장
-python scripts/weights_fig.py . figures
-```
-
-한글 폰트(Noto Sans CJK KR)가 설치돼 있어야 그림 속 한글이 제대로 나온다.
+지금 공식 코드로 처음 돌렸을 때(2026-11-04)는 36칸 중 3칸만 정확히 맞았습니다. 그때의 표와 추가 실험은 [`results/README.md`](results/README.md)와 [`results/extra_experiments.md`](results/extra_experiments.md)에 그대로 남겨 두었습니다. 원인은 위 "결론"의 2번입니다.
 
 ## 출처
-- 공식 코드: [cure-lab/LTSF-Linear](https://github.com/cure-lab/LTSF-Linear) (Apache-2.0)
-- 데이터: ETT는 [zhouhaoyi/ETDataset](https://github.com/zhouhaoyi/ETDataset), 나머지는 Autoformer 저자 제공 구글 드라이브
+
+- 공식 코드: [cure-lab/LTSF-Linear](https://github.com/cure-lab/LTSF-Linear) (Apache-2.0). 발표 자료 27쪽의 그림은 이 저장소의 `pics/DLinear/LookBackWindow.png`입니다.
+- 데이터: ETT는 [zhouhaoyi/ETDataset](https://github.com/zhouhaoyi/ETDataset), 나머지는 Autoformer 저자가 제공한 Google Drive. 이 저장소에는 데이터를 넣지 않았습니다.
+
+---
+
+## English summary
+
+A Colab reproduction of the linear models (Linear, NLinear, DLinear) from *Are Transformers Effective for Time Series Forecasting?* (AAAI 2023), using the official code, with the cause of every mismatch traced.
+
+- **92 cells reproduced, 89 match the paper or have a confirmed cause.** Multivariate DLinear: 35 of 36 cells match to the third decimal. Linear: 20 of 20. NLinear: 18 of 20. Univariate DLinear: all 16 explained (one is a typo in the paper's table).
+- **Main cause of the gaps: the official code changed after the paper.** The paper's numbers come from commit `04ffd8d` (June 2022). Later commits removed the weight initialization, deleted an unused layer (which changed the random number stream and so the data order), and changed learning rates and test scoring.
+- **Some cells are unstable.** Where early stopping picks an early epoch (e.g. ETTh2 720, Exchange 720), the result depends strongly on the seed.
+- **The paper's analysis experiments were rerun** (269 trainings). Accuracy, shuffling (on Exchange), position information, efficiency and look-back length reproduce. The data-size claim reproduces only for FEDformer.
+- **Improvement hypotheses are in progress.** On ETT and Exchange, a closed-form ridge solution with the last value subtracted is the best of five methods in 12 of 20 cells.
+
+Slides and scripts (Korean and English) are in [`docs/`](docs/). The detailed write-ups are in Korean.

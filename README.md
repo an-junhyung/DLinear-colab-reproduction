@@ -40,7 +40,7 @@
 
 Table 3, Table 7과 Table 4의 가운데 두 모델은 저자 코드가 공개되지 않아 논문 설명대로 구현했습니다.
 
-**5. 개선 가설을 실험하는 중입니다.** 가설: [`docs/improvement_hypotheses.md`](docs/improvement_hypotheses.md), 1단계 결과(ETT 4종, 환율): [`results/hypotheses/stage1.md`](results/hypotheses/stage1.md). 마지막 값을 뺀 뒤 학습 대신 수식(릿지 회귀)으로 푼 해가 20칸 중 12칸에서 가장 낮았습니다. DLinear에 마지막 값 빼기를 더하면 NLinear와 같은 수준이 됩니다. 독감, 날씨, 전력, 교통은 진행 중입니다.
+**5. 개선 가설을 실험하는 중입니다.** 가설: [`docs/improvement_hypotheses.md`](docs/improvement_hypotheses.md), 1단계 결과(데이터 8개, 교통은 진행 중): [`results/hypotheses/stage1.md`](results/hypotheses/stage1.md). 학습 대신 수식(릿지 회귀)으로 푼 해가 32칸 중 25칸에서 가장 낮았습니다. 마지막 값 빼기는 높이가 움직이는 데이터(ETTh2, ETTm2, 독감)에서만 효과가 있고, DLinear에 더하면 NLinear와 같은 수준이 됩니다.
 
 ## 폴더 구성
 
@@ -86,6 +86,6 @@ A Colab reproduction of the linear models (Linear, NLinear, DLinear) from *Are T
 - **Main cause of the gaps: the official code changed after the paper.** The paper's numbers come from commit `04ffd8d` (June 2022). Later commits removed the weight initialization, deleted an unused layer (which changed the random number stream and so the data order), and changed learning rates and test scoring.
 - **Some cells are unstable.** Where early stopping picks an early epoch (e.g. ETTh2 720, Exchange 720), the result depends strongly on the seed.
 - **The paper's analysis experiments were rerun** (269 trainings). Accuracy, shuffling (on Exchange), position information, efficiency and look-back length reproduce. The data-size claim reproduces only for FEDformer.
-- **Improvement hypotheses are in progress.** On ETT and Exchange, a closed-form ridge solution with the last value subtracted is the best of five methods in 12 of 20 cells.
+- **Improvement hypotheses are in progress.** On 8 datasets (Traffic still running), a closed-form ridge solution is the lowest of the methods compared in 25 of 32 cells. Subtracting the last value helps only where the level moves (ETTh2, ETTm2, ILI).
 
 Slides and scripts (Korean and English) are in [`docs/`](docs/). The detailed write-ups are in Korean.
